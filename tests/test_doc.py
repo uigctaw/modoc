@@ -1,4 +1,6 @@
+import abc
 import textwrap
+from dataclasses import dataclass, field
 from typing import Protocol
 
 from modoc import get_doc
@@ -171,4 +173,50 @@ def test_protocol_doc():
                     To everyone.
                     """
         ''',
+    )
+
+
+def test_dataclass():
+    @dataclass(frozen=True, kw_only=True, slots=True)
+    class MyData:
+        hi: int
+        hello: str = "10"
+        bye: list = field(default_factory=list)
+
+    doc = get_doc(MyData)
+
+    _assert_doc(
+        doc,
+        """
+            @dataclass(frozen=True, kw_only=True, slots=True)
+            class MyData:
+                hi: int
+                hello: str = "10"
+                bye: list = field(default_factory=list)
+        """,
+    )
+
+
+def test_class_doc():
+    class MyClass(abc.ABC):
+        def __init__(self):
+            self._should_i_give_all_the_code = True
+
+        @abc.abstractmethod
+        def could_be_excessive(self):
+            print("We'll see!")  # noqa: T201
+
+    doc = get_doc(MyClass)
+
+    _assert_doc(
+        doc,
+        """
+            class MyClass(abc.ABC):
+                def __init__(self):
+                    self._should_i_give_all_the_code = True
+
+                @abc.abstractmethod
+                def could_be_excessive(self):
+                    print("We'll see!")  # noqa: T201
+        """,
     )

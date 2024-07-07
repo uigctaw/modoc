@@ -1,16 +1,13 @@
 import ast
 import inspect
 import textwrap
-from typing import Protocol
 
 _INDENT = "    "
 
 
 def get_doc(obj):
-    if (
-        inspect.isclass(obj) and issubclass(obj, Protocol)  # type: ignore[arg-type]
-    ):
-        return _get_protocol_doc(obj)
+    if inspect.isclass(obj):
+        return _get_code(obj)
     return _get_fn_doc(obj)
 
 

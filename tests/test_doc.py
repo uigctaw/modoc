@@ -200,7 +200,7 @@ def test_dataclass():
 def test_class_doc():
     class MyClass(abc.ABC):
         def __init__(self):
-            self._should_i_give_all_the_code = True
+            self._should_i_give_all_the_code = False
 
         @abc.abstractmethod
         def could_be_excessive(self):
@@ -212,11 +212,49 @@ def test_class_doc():
         doc,
         """
             class MyClass(abc.ABC):
-                def __init__(self):
-                    self._should_i_give_all_the_code = True
 
                 @abc.abstractmethod
                 def could_be_excessive(self):
-                    print("We'll see!")  # noqa: T201
+                    ...
         """,
+    )
+
+
+def test_class_with_non_abstract_methods():
+    class MyClass(abc.ABC):
+        def __init__(self):
+            self._should_i_give_all_the_code = False
+
+        @abc.abstractmethod
+        def could_be_excessive(self):
+            """Hmmm..."""
+
+        def _this_should_not_show(self):
+            """Because it's protected."""
+            return 1 + 2
+
+        def this_should_show(self):
+            """Because it's a public method.
+
+            Ok?
+            """
+            _ = "But not the whole body!"
+
+    doc = get_doc(MyClass)
+
+    _assert_doc(
+        doc,
+        '''
+            class MyClass(abc.ABC):
+
+                @abc.abstractmethod
+                def could_be_excessive(self):
+                    """Hmmm..."""
+
+                def this_should_show(self):
+                    """Because it's a public method.
+
+                    Ok?
+                    """
+        ''',
     )

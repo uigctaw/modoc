@@ -258,3 +258,19 @@ def test_class_with_non_abstract_methods():
                     """
         ''',
     )
+
+
+def test_class_with_property():
+    class MyClass:
+        @property
+        def value(self):
+            return 5
+
+    doc = get_doc(MyClass)
+
+    _assert_doc(
+        doc,
+        """
+            class MyClass:
+        """,
+    )
